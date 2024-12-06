@@ -1,5 +1,5 @@
 name: eco_tycoon
-description: "A new Flutter project."
+description: "A game where players manage resources and plant trees to restore a planet's ecosystem. Balance economic growth with environmental sustainability in this engaging simulation game.."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev

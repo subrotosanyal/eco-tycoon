@@ -1,3 +1,32 @@
+FROM debian:bullseye-slim AS test
+
+# Install required dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    unzip \
+    xz-utils \
+    zip \
+    libglu1-mesa \
+    imagemagick \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Flutter
+RUN git clone https://github.com/flutter/flutter.git /flutter
+ENV PATH="/flutter/bin:${PATH}"
+
+# Configure Flutter
+RUN flutter channel stable && \
+    flutter upgrade && \
+    flutter config --enable-web
+
+WORKDIR /app
+COPY . .
+
+# Get dependencies and run tests
+RUN flutter pub get && \
+    flutter test --coverage
+
 FROM debian:bullseye-slim AS build
 
 # Install required dependencies
