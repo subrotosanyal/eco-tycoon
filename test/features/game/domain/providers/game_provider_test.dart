@@ -5,6 +5,7 @@ import 'package:eco_tycoon/features/game/domain/models/game_state.dart';
 import 'package:eco_tycoon/features/game/domain/models/tree_position.dart';
 import 'package:eco_tycoon/features/game/domain/models/game_resources.dart';
 import 'package:eco_tycoon/features/game/domain/models/planet_state.dart';
+import '../commands/command_test_helper.dart';
 
 void main() {
   late ProviderContainer container;
@@ -55,7 +56,7 @@ void main() {
   });
 
   group('GameNotifier - Resource Management', () {
-    test('planting tree should consume resources correctly', () {
+    test('planting tree should consume resources correctly', () async {
       // Start with specific resource values
       final initialState = GameState.initial().copyWith(
         isPlaying: true,
@@ -65,7 +66,8 @@ void main() {
       gameNotifier = container.read(gameNotifierProvider.notifier)
         ..state = initialState;
 
-      gameNotifier.plantTree(const TreePosition(x: 0, y: 0));
+      final position = const TreePosition(x: 0, y: 0);
+      await CommandTestHelper.executePlantTree(gameNotifier, initialState, position);
       final newState = container.read(gameNotifierProvider);
 
       expect(newState.resources.water, initialState.resources.water - 10);
@@ -73,7 +75,7 @@ void main() {
       expect(newState.resources.soil, initialState.resources.soil - 5);
     });
 
-    test('should not plant tree when resources are insufficient', () {
+    test('should not plant tree when resources are insufficient', () async {
       // Set resources to low values
       const lowResources = GameResources(water: 5, energy: 3, soil: 3);
       final initialState = GameState.initial().copyWith(
@@ -84,7 +86,8 @@ void main() {
       gameNotifier = container.read(gameNotifierProvider.notifier)
         ..state = initialState;
 
-      gameNotifier.plantTree(const TreePosition(x: 0, y: 0));
+      final position = const TreePosition(x: 0, y: 0);
+      await CommandTestHelper.executePlantTree(gameNotifier, initialState, position);
       final newState = container.read(gameNotifierProvider);
 
       // Tree should not be planted, resources should remain the same
@@ -92,16 +95,17 @@ void main() {
       expect(newState.treePositions, isEmpty);
     });
 
-    test('cleaning pollution should consume resources correctly', () {
+    test('cleaning pollution should consume resources correctly', () async {
       container = ProviderContainer();
       gameNotifier = container.read(gameNotifierProvider.notifier);
       gameNotifier.startGame();
 
       // Get initial resources
-      final initialResources = container.read(gameNotifierProvider).resources;
+      final initialState = container.read(gameNotifierProvider);
+      final initialResources = initialState.resources;
 
       // Clean pollution
-      gameNotifier.cleanPollution();
+      await CommandTestHelper.executeCleanPollution(gameNotifier, initialState);
       final state = container.read(gameNotifierProvider);
 
       expect(state.resources.water, equals(initialResources.water - 5),
@@ -112,7 +116,8 @@ void main() {
           reason: 'Should reduce pollution by 10');
     });
 
-    test('should not clean pollution when resources are insufficient', () {
+    test('should not clean pollution when resources are insufficient',
+        () async {
       // Start with low resources
       final initialState = GameState.initial().copyWith(
         isPlaying: true,
@@ -123,7 +128,7 @@ void main() {
       gameNotifier = container.read(gameNotifierProvider.notifier)
         ..state = initialState;
 
-      gameNotifier.cleanPollution();
+      await CommandTestHelper.executeCleanPollution(gameNotifier, initialState);
       final newState = container.read(gameNotifierProvider);
 
       // Resources and pollution should remain unchanged
@@ -137,7 +142,8 @@ void main() {
   });
 
   group('GameNotifier - Game Rules', () {
-    test('game should end in victory with enough trees and low pollution', () {
+    test('game should end in victory with enough trees and low pollution',
+        () async {
       // Start with a favorable state
       final favorableState = GameState.initial().copyWith(
         isPlaying: true,
@@ -152,19 +158,25 @@ void main() {
       for (var i = 0; i < 20; i++) {
         final x = (i % 5) * 0.2 - 0.4; // Spread trees in a grid
         final y = (i ~/ 5) * 0.2 - 0.4;
-        gameNotifier.plantTree(TreePosition(x: x, y: y));
+        final state = container.read(gameNotifierProvider);
+        await CommandTestHelper.executePlantTree(
+          gameNotifier, 
+          state, 
+          TreePosition(x: x, y: y)
+        );
       }
 
       // Trigger game state check
-      gameNotifier.cleanPollution();
-
       final state = container.read(gameNotifierProvider);
-      expect(state.gameOver, true,
+      await CommandTestHelper.executeCleanPollution(gameNotifier, state);
+
+      final finalState = container.read(gameNotifierProvider);
+      expect(finalState.gameOver, true,
           reason: 'Game should be over with 20 trees and low pollution');
-      expect(state.victory, true,
+      expect(finalState.victory, true,
           reason: 'Should achieve victory with 20 trees and low pollution');
-      expect(state.planetState.pollution, lessThan(30));
-      expect(state.treePositions.length, greaterThanOrEqualTo(20));
+      expect(finalState.planetState.pollution, lessThan(30));
+      expect(finalState.treePositions.length, greaterThanOrEqualTo(20));
     });
 
     test('game should end in defeat when pollution reaches 100', () {
@@ -190,38 +202,39 @@ void main() {
       expect(finalState.planetState.pollution, equals(100));
     });
 
-    test('trees should not be planted too close to each other', () {
+    test('trees should not be planted too close to each other', () async {
       gameNotifier.startGame();
 
       // Plant first tree
-      gameNotifier.plantTree(const TreePosition(x: 0, y: 0));
-      final initialTreeCount =
-          container.read(gameNotifierProvider).treePositions.length;
+      var state = container.read(gameNotifierProvider);
+      await CommandTestHelper.executePlantTree(gameNotifier, state, const TreePosition(x: 0, y: 0));
+      final initialTreeCount = container.read(gameNotifierProvider).treePositions.length;
 
       // Try to plant second tree very close to first one
-      gameNotifier.plantTree(const TreePosition(x: 0.1, y: 0.1));
-      final newTreeCount =
-          container.read(gameNotifierProvider).treePositions.length;
+      state = container.read(gameNotifierProvider);
+      await CommandTestHelper.executePlantTree(gameNotifier, state, const TreePosition(x: 0.1, y: 0.1));
+      final newTreeCount = container.read(gameNotifierProvider).treePositions.length;
 
       expect(newTreeCount, equals(initialTreeCount),
           reason: 'Should not plant tree too close to existing tree');
     });
 
-    test('trees should not be planted outside planet boundary', () {
+    test('trees should not be planted outside planet boundary', () async {
       gameNotifier.startGame();
 
       // Try to plant tree outside the 90% radius boundary
-      gameNotifier.plantTree(const TreePosition(x: 0.95, y: 0));
-      final state = container.read(gameNotifierProvider);
+      var state = container.read(gameNotifierProvider);
+      await CommandTestHelper.executePlantTree(gameNotifier, state, const TreePosition(x: 0.95, y: 0));
+      final finalState = container.read(gameNotifierProvider);
 
-      expect(state.treePositions, isEmpty,
+      expect(finalState.treePositions, isEmpty,
           reason: 'Should not plant tree outside planet boundary');
     });
   });
 
   group('GameNotifier - Score and Level Calculation', () {
     test('score should increase with more trees and decrease with pollution',
-        () {
+        () async {
       container = ProviderContainer();
       gameNotifier = container.read(gameNotifierProvider.notifier);
 
@@ -238,7 +251,8 @@ void main() {
       // Plant 5 trees
       for (var i = 0; i < 5; i++) {
         gameNotifier.state = gameNotifier.state.copyWith(isPlaying: true);
-        gameNotifier.plantTree(TreePosition(x: i * 0.2, y: 0));
+        var state = container.read(gameNotifierProvider);
+        await CommandTestHelper.executePlantTree(gameNotifier, state, TreePosition(x: i * 0.2, y: 0));
         gameNotifier.state = gameNotifier.state.copyWith(isPlaying: false);
       }
       var state = container.read(gameNotifierProvider);
@@ -250,16 +264,20 @@ void main() {
       gameNotifier.state = gameNotifier.state.copyWith(isPlaying: true);
       final pollutionBefore = state.planetState.pollution;
       final scoreBefore = state.planetState.score;
-      gameNotifier.cleanPollution();
-      gameNotifier.state = gameNotifier.state.copyWith(isPlaying: false);
+
+      // Get current state before cleaning
       state = container.read(gameNotifierProvider);
-      expect(state.planetState.score, greaterThan(scoreBefore),
+      await CommandTestHelper.executeCleanPollution(gameNotifier, state);
+
+      // Get final state after cleaning
+      final finalState = container.read(gameNotifierProvider);
+      expect(finalState.planetState.score, greaterThan(scoreBefore),
           reason: 'Score should increase when pollution is reduced');
-      expect(state.planetState.pollution, lessThan(pollutionBefore),
+      expect(finalState.planetState.pollution, lessThan(pollutionBefore),
           reason: 'Pollution should decrease after cleaning');
     });
 
-    test('planet level should change based on trees and pollution', () {
+    test('planet level should change based on trees and pollution', () async {
       container = ProviderContainer();
       gameNotifier = container.read(gameNotifierProvider.notifier);
 
@@ -284,7 +302,12 @@ void main() {
       for (var i = 0; i < 10; i++) {
         final x = (i % 5) * 0.3 - 0.6; // 5 trees per row, spaced 0.3 apart
         final y = (i ~/ 5) * 0.3 - 0.3; // 2 rows, spaced 0.3 apart
-        gameNotifier.plantTree(TreePosition(x: x, y: y));
+        state = container.read(gameNotifierProvider);
+        await CommandTestHelper.executePlantTree(
+          gameNotifier, 
+          state, 
+          TreePosition(x: x, y: y)
+        );
       }
 
       state = container.read(gameNotifierProvider);
@@ -298,7 +321,12 @@ void main() {
       for (var i = 0; i < 5; i++) {
         final x = i * 0.3 - 0.6;
         const y = 0.3; // New row above existing trees
-        gameNotifier.plantTree(TreePosition(x: x, y: y));
+        state = container.read(gameNotifierProvider);
+        await CommandTestHelper.executePlantTree(
+          gameNotifier, 
+          state, 
+          TreePosition(x: x, y: y)
+        );
       }
 
       state = container.read(gameNotifierProvider);
@@ -312,7 +340,12 @@ void main() {
       for (var i = 0; i < 5; i++) {
         final x = i * 0.3 - 0.6;
         const y = -0.6; // New row below existing trees
-        gameNotifier.plantTree(TreePosition(x: x, y: y));
+        state = container.read(gameNotifierProvider);
+        await CommandTestHelper.executePlantTree(
+          gameNotifier, 
+          state, 
+          TreePosition(x: x, y: y)
+        );
       }
 
       state = container.read(gameNotifierProvider);

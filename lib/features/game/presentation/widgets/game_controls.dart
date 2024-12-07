@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:eco_tycoon/features/game/domain/providers/game_provider.dart';
+import 'package:eco_tycoon/features/game/domain/commands/game_command_factory.dart';
 import 'package:eco_tycoon/features/game/domain/models/tree_position.dart';
 import 'dart:math';
 
@@ -10,7 +11,9 @@ class GameControls extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final gameState = ref.watch(gameNotifierProvider);
+    final gameNotifier = ref.read(gameNotifierProvider.notifier);
     final isSmallScreen = MediaQuery.of(context).size.width < 600;
+    final commands = GameCommandFactory.createCommands(gameNotifier, gameState);
     
     return Wrap(
       spacing: 8,
@@ -21,9 +24,9 @@ class GameControls extends ConsumerWidget {
         IconButton(
           onPressed: () {
             if (gameState.isPlaying) {
-              ref.read(gameNotifierProvider.notifier).pauseGame();
+              gameNotifier.pauseGame();
             } else {
-              ref.read(gameNotifierProvider.notifier).resumeGame();
+              gameNotifier.resumeGame();
             }
           },
           icon: Icon(
@@ -37,7 +40,7 @@ class GameControls extends ConsumerWidget {
         ),
         // Reset button
         IconButton(
-          onPressed: () => ref.read(gameNotifierProvider.notifier).startGame(),
+          onPressed: () => gameNotifier.startGame(),
           icon: const Icon(Icons.refresh, size: 20),
           style: IconButton.styleFrom(
             backgroundColor: Colors.grey.shade800,
@@ -45,50 +48,37 @@ class GameControls extends ConsumerWidget {
           ),
         ),
         const SizedBox(width: 8),
-        // Plant Tree button
-        ElevatedButton.icon(
-          onPressed: (gameState.isPlaying && gameState.resources.canPlantTree())
-              ? () {
-                  final position = TreePosition(
-                    x: -0.5 + Random().nextDouble(),
-                    y: -0.5 + Random().nextDouble(),
-                  );
-                  ref.read(gameNotifierProvider.notifier).plantTree(position);
-                }
-              : null,
-          icon: const Icon(Icons.park, size: 18),
+        ...commands.map((command) => ElevatedButton.icon(
+          onPressed: command.isEnabled ? () {
+            if (command.name == 'plant_tree') {
+              final position = TreePosition(
+                x: -0.5 + Random().nextDouble(),
+                y: -0.5 + Random().nextDouble(),
+              );
+              final plantCommand = GameCommandFactory.createPlantTreeCommand(
+                gameNotifier, 
+                gameState, 
+                position
+              );
+              plantCommand.execute();
+            } else {
+              command.execute();
+            }
+          } : null,
+          icon: Icon(command.icon, size: 18),
           label: Text(
-            'Plant Tree',
+            command.label,
             style: TextStyle(fontSize: isSmallScreen ? 14 : 16),
           ),
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.green,
+            backgroundColor: command.color,
             foregroundColor: Colors.white,
             padding: EdgeInsets.symmetric(
               horizontal: isSmallScreen ? 12 : 16,
               vertical: 8,
             ),
           ),
-        ),
-        // Clean button
-        ElevatedButton.icon(
-          onPressed: (gameState.isPlaying && gameState.resources.canCleanPollution())
-              ? () => ref.read(gameNotifierProvider.notifier).cleanPollution()
-              : null,
-          icon: const Icon(Icons.cleaning_services, size: 18),
-          label: Text(
-            'Clean',
-            style: TextStyle(fontSize: isSmallScreen ? 14 : 16),
-          ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.blue,
-            foregroundColor: Colors.white,
-            padding: EdgeInsets.symmetric(
-              horizontal: isSmallScreen ? 12 : 16,
-              vertical: 8,
-            ),
-          ),
-        ),
+        )),
       ],
     );
   }

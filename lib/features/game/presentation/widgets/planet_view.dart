@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/models/tree_position.dart';
 import '../../domain/providers/game_provider.dart';
+import '../../domain/commands/game_command_factory.dart';
 import '../painters/planet_painter.dart';
 import '../providers/ripple_provider.dart';
 import './ripple_animation.dart';
@@ -57,9 +58,12 @@ class PlanetView extends ConsumerWidget {
                         y: dy / radius,
                       );
 
-                      ref
-                          .read(gameNotifierProvider.notifier)
-                          .plantTree(position);
+                      final command = GameCommandFactory.createPlantTreeCommand(
+                        ref.read(gameNotifierProvider.notifier),
+                        gameState,
+                        position
+                      );
+                      command.execute();
                       ref
                           .read(rippleStateProvider.notifier)
                           .showRipple(localPosition);
