@@ -27,48 +27,51 @@ class StartScreen extends ConsumerWidget {
             child: Container(
               constraints: const BoxConstraints(maxWidth: 600),
               padding: const EdgeInsets.all(32),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    'Eco Tycoon',
-                    style: TextStyle(
-                      fontSize: 48,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  const Text(
-                    'Save the Planet!',
-                    style: TextStyle(
-                      fontSize: 24,
-                      color: Colors.grey,
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  const _GameRules(),
-                  const SizedBox(height: 32),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 48,
-                        vertical: 16,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      'Eco Tycoon',
+                      style: TextStyle(
+                        fontSize: 48,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green,
                       ),
-                      textStyle: const TextStyle(fontSize: 20),
                     ),
-                    onPressed: () {
-                      ref.read(gameNotifierProvider.notifier).startGame();
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                          builder: (context) => const GameScreen(),
+                    const SizedBox(height: 24),
+                    const Text(
+                      'Save the Planet!',
+                      style: TextStyle(
+                        fontSize: 24,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    const _GameRules(),
+                    const SizedBox(height: 32),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 48,
+                          vertical: 16,
                         ),
-                      );
-                    },
-                    child: const Text('Start Game'),
-                  ),
-                ],
+                        textStyle: const TextStyle(fontSize: 20),
+                      ),
+                      onPressed: () {
+                        ref.read(gameNotifierProvider.notifier).startGame();
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                            builder: (context) => const GameScreen(),
+                          ),
+                        );
+                      },
+                      child: const Text('Start Game'),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                ),
               ),
             ),
           ),
@@ -94,10 +97,43 @@ class _GameRules extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        _buildRuleItem('🌱 Plant trees to generate resources'),
-        _buildRuleItem('🧹 Clean pollution to save the planet'),
-        _buildRuleItem('📈 Manage your resources wisely'),
-        _buildRuleItem('🏆 Win by reducing pollution to 0 with 50+ trees'),
+        _buildRuleItem(
+          icon: const Icon(Icons.park, color: Colors.green),
+          text: 'Plant trees to generate resources',
+        ),
+        _buildRuleItem(
+          icon: const Icon(Icons.cleaning_services, color: Colors.blue),
+          text: 'Clean pollution to save the planet',
+        ),
+        _buildRuleItem(
+          icon: const Icon(Icons.trending_up, color: Colors.orange),
+          text: 'Manage your resources wisely',
+        ),
+        _buildRuleItem(
+          icon: const Icon(Icons.timer, color: Colors.red),
+          text: 'Act quickly - faster completion means higher scores!',
+        ),
+        const SizedBox(height: 16),
+        const Text(
+          'Victory Conditions:',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 16),
+        _buildRuleItem(
+          icon: const Icon(Icons.forest, color: Colors.green),
+          text: 'Plant at least 20 trees',
+        ),
+        _buildRuleItem(
+          icon: const Icon(Icons.eco, color: Colors.teal),
+          text: 'Keep pollution below 30%',
+        ),
+        _buildRuleItem(
+          icon: const Icon(Icons.stars, color: Colors.amber),
+          text: 'Bonus points for faster completion',
+        ),
         const SizedBox(height: 16),
         const Text(
           'Resources:',
@@ -107,19 +143,32 @@ class _GameRules extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        _buildRuleItem('💧 Water: Used for planting trees'),
-        _buildRuleItem('⚡ Energy: Powers pollution cleanup'),
-        _buildRuleItem('🌍 Soil: Required for tree growth'),
+        _buildRuleItem(
+          icon: const Icon(Icons.water_drop, color: Colors.blue),
+          text: 'Water: Used for planting trees',
+        ),
+        _buildRuleItem(
+          icon: const Icon(Icons.bolt, color: Colors.yellow),
+          text: 'Energy: Powers pollution cleanup',
+        ),
+        _buildRuleItem(
+          icon: const Icon(Icons.landscape, color: Colors.brown),
+          text: 'Soil: Required for tree growth',
+        ),
       ],
     );
   }
 
-  Widget _buildRuleItem(String text) {
+  Widget _buildRuleItem({required Widget icon, required String text}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
-          const SizedBox(width: 16),
+          SizedBox(
+            width: 32,
+            child: icon,
+          ),
+          const SizedBox(width: 8),
           Expanded(
             child: Text(
               text,

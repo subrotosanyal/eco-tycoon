@@ -53,6 +53,12 @@ class GameNotifier extends StateNotifier<GameState> {
     super.state = state.copyWith(isPlaying: false);
   }
 
+  void stopGame() {
+    LoggerService.info('Stopping game');
+    _gameTimer?.cancel();
+    super.state = GameState.initial();
+  }
+
   void resumeGame() {
     if (state.gameOver) return; // Don't allow resuming if game is over
     LoggerService.info('Resuming game');
