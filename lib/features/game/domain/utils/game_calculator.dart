@@ -10,10 +10,31 @@ class GameCalculator {
   static const int MAX_POLLUTION = 100;
   static const int MIN_TREES_FOR_VICTORY = 20;
   static const int MAX_POLLUTION_FOR_VICTORY = 30;
+  static const int TIME_PENALTY_FACTOR = 5; // Points deducted per minute
+  static const double TIME_RANDOMNESS_FACTOR = 0.1; // 10% random variation
 
-  /// Calculates the game score based on number of trees and pollution level
-  static int calculateScore(int trees, int pollution) {
-    return (trees * TREE_POINTS) - (pollution * POLLUTION_PENALTY);
+  /// Calculates the game score based on number of trees, pollution level, and elapsed time
+  static int calculateScore(int trees, int pollution, [int elapsedTimeInSeconds = 0]) {
+    // Base score calculation
+    final baseScore = (trees * TREE_POINTS) - (pollution * POLLUTION_PENALTY);
+    
+    if (elapsedTimeInSeconds == 0) {
+      return baseScore; // For backward compatibility with tests
+    }
+
+    // Time penalty (reduces score over time)
+    final minutesElapsed = elapsedTimeInSeconds / 60;
+    final timePenalty = (minutesElapsed * TIME_PENALTY_FACTOR).round();
+    
+    // Random factor based on time (±10% variation)
+    final random = math.Random();
+    final randomFactor = 1.0 + (random.nextDouble() * 2 - 1) * TIME_RANDOMNESS_FACTOR;
+    
+    // Calculate final score with time penalty and random factor
+    final timeAdjustedScore = (baseScore * math.max(0.1, 1.0 - timePenalty / 100));
+    final finalScore = (timeAdjustedScore * randomFactor).round();
+    
+    return math.max(0, finalScore); // Ensure score doesn't go negative
   }
 
   /// Determines the planet level based on trees and pollution

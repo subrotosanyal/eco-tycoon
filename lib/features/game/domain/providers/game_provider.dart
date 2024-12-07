@@ -91,7 +91,7 @@ class GameNotifier extends StateNotifier<GameState> {
       pollution: newPollution,
       trees: treeCount,
       level: GameCalculator.calculatePlanetLevel(treeCount, newPollution),
-      score: GameCalculator.calculateScore(treeCount, newPollution),
+      score: GameCalculator.calculateScore(treeCount, newPollution, state.elapsedTime),
     );
   }
 

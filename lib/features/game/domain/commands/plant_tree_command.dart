@@ -51,7 +51,7 @@ class PlantTreeCommand implements GameCommand {
     // Calculate new planet state
     final treeCount = newTreePositions.length;
     final currentPollution = gameState.planetState.pollution;
-    final newScore = GameCalculator.calculateScore(treeCount, currentPollution);
+    final newScore = GameCalculator.calculateScore(treeCount, currentPollution, gameState.elapsedTime);
     final newLevel =
         GameCalculator.calculatePlanetLevel(treeCount, currentPollution);
 

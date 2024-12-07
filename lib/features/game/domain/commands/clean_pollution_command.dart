@@ -36,7 +36,7 @@ class CleanPollutionCommand implements GameCommand {
     final newResources = GameCalculator.calculatePollutionCleaningCost(gameState.resources);
     final newPollution = GameCalculator.calculatePollutionReduction(gameState.planetState.pollution);
     final treeCount = gameState.treePositions.length;
-    final newScore = GameCalculator.calculateScore(treeCount, newPollution);
+    final newScore = GameCalculator.calculateScore(treeCount, newPollution, gameState.elapsedTime);
     final newLevel = GameCalculator.calculatePlanetLevel(treeCount, newPollution);
 
     final newPlanetState = gameState.planetState.copyWith(
