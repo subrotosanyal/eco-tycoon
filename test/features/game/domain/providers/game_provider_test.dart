@@ -66,8 +66,9 @@ void main() {
       gameNotifier = container.read(gameNotifierProvider.notifier)
         ..state = initialState;
 
-      final position = const TreePosition(x: 0, y: 0);
-      await CommandTestHelper.executePlantTree(gameNotifier, initialState, position);
+      const position = TreePosition(x: 0, y: 0);
+      await CommandTestHelper.executePlantTree(
+          gameNotifier, initialState, position);
       final newState = container.read(gameNotifierProvider);
 
       expect(newState.resources.water, initialState.resources.water - 10);
@@ -86,8 +87,9 @@ void main() {
       gameNotifier = container.read(gameNotifierProvider.notifier)
         ..state = initialState;
 
-      final position = const TreePosition(x: 0, y: 0);
-      await CommandTestHelper.executePlantTree(gameNotifier, initialState, position);
+      const position = TreePosition(x: 0, y: 0);
+      await CommandTestHelper.executePlantTree(
+          gameNotifier, initialState, position);
       final newState = container.read(gameNotifierProvider);
 
       // Tree should not be planted, resources should remain the same
@@ -160,10 +162,7 @@ void main() {
         final y = (i ~/ 5) * 0.2 - 0.4;
         final state = container.read(gameNotifierProvider);
         await CommandTestHelper.executePlantTree(
-          gameNotifier, 
-          state, 
-          TreePosition(x: x, y: y)
-        );
+            gameNotifier, state, TreePosition(x: x, y: y));
       }
 
       // Trigger game state check
@@ -207,13 +206,17 @@ void main() {
 
       // Plant first tree
       var state = container.read(gameNotifierProvider);
-      await CommandTestHelper.executePlantTree(gameNotifier, state, const TreePosition(x: 0, y: 0));
-      final initialTreeCount = container.read(gameNotifierProvider).treePositions.length;
+      await CommandTestHelper.executePlantTree(
+          gameNotifier, state, const TreePosition(x: 0, y: 0));
+      final initialTreeCount =
+          container.read(gameNotifierProvider).treePositions.length;
 
       // Try to plant second tree very close to first one
       state = container.read(gameNotifierProvider);
-      await CommandTestHelper.executePlantTree(gameNotifier, state, const TreePosition(x: 0.1, y: 0.1));
-      final newTreeCount = container.read(gameNotifierProvider).treePositions.length;
+      await CommandTestHelper.executePlantTree(
+          gameNotifier, state, const TreePosition(x: 0.1, y: 0.1));
+      final newTreeCount =
+          container.read(gameNotifierProvider).treePositions.length;
 
       expect(newTreeCount, equals(initialTreeCount),
           reason: 'Should not plant tree too close to existing tree');
@@ -224,7 +227,8 @@ void main() {
 
       // Try to plant tree outside the 90% radius boundary
       var state = container.read(gameNotifierProvider);
-      await CommandTestHelper.executePlantTree(gameNotifier, state, const TreePosition(x: 0.95, y: 0));
+      await CommandTestHelper.executePlantTree(
+          gameNotifier, state, const TreePosition(x: 0.95, y: 0));
       final finalState = container.read(gameNotifierProvider);
 
       expect(finalState.treePositions, isEmpty,
@@ -252,7 +256,8 @@ void main() {
       for (var i = 0; i < 5; i++) {
         gameNotifier.state = gameNotifier.state.copyWith(isPlaying: true);
         var state = container.read(gameNotifierProvider);
-        await CommandTestHelper.executePlantTree(gameNotifier, state, TreePosition(x: i * 0.2, y: 0));
+        await CommandTestHelper.executePlantTree(
+            gameNotifier, state, TreePosition(x: i * 0.2, y: 0));
         gameNotifier.state = gameNotifier.state.copyWith(isPlaying: false);
       }
       var state = container.read(gameNotifierProvider);
@@ -304,10 +309,7 @@ void main() {
         final y = (i ~/ 5) * 0.3 - 0.3; // 2 rows, spaced 0.3 apart
         state = container.read(gameNotifierProvider);
         await CommandTestHelper.executePlantTree(
-          gameNotifier, 
-          state, 
-          TreePosition(x: x, y: y)
-        );
+            gameNotifier, state, TreePosition(x: x, y: y));
       }
 
       state = container.read(gameNotifierProvider);
@@ -323,10 +325,7 @@ void main() {
         const y = 0.3; // New row above existing trees
         state = container.read(gameNotifierProvider);
         await CommandTestHelper.executePlantTree(
-          gameNotifier, 
-          state, 
-          TreePosition(x: x, y: y)
-        );
+            gameNotifier, state, TreePosition(x: x, y: y));
       }
 
       state = container.read(gameNotifierProvider);
@@ -342,10 +341,7 @@ void main() {
         const y = -0.6; // New row below existing trees
         state = container.read(gameNotifierProvider);
         await CommandTestHelper.executePlantTree(
-          gameNotifier, 
-          state, 
-          TreePosition(x: x, y: y)
-        );
+            gameNotifier, state, TreePosition(x: x, y: y));
       }
 
       state = container.read(gameNotifierProvider);
