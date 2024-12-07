@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:eco_tycoon/features/game/presentation/widgets/game_stats.dart';
-import 'package:eco_tycoon/features/game/domain/providers/game_provider.dart';
 import 'package:eco_tycoon/features/game/domain/models/game_state.dart';
 import 'package:eco_tycoon/features/game/domain/models/planet_state.dart';
+import 'package:eco_tycoon/features/game/domain/providers/game_provider.dart';
 
 void main() {
   group('GameStats Widget Tests', () {
@@ -39,11 +39,11 @@ void main() {
           ),
           elapsedTime: 60,
           treePositions: [
-            TreePosition(x: 0, y: 0),
-            TreePosition(x: 0.1, y: 0.1),
-            TreePosition(x: 0.2, y: 0.2),
-            TreePosition(x: 0.3, y: 0.3),
-            TreePosition(x: 0.4, y: 0.4),
+            const TreePosition(x: 0, y: 0),
+            const TreePosition(x: 0.1, y: 0.1),
+            const TreePosition(x: 0.2, y: 0.2),
+            const TreePosition(x: 0.3, y: 0.3),
+            const TreePosition(x: 0.4, y: 0.4),
           ],
         );
 
@@ -126,11 +126,11 @@ void main() {
             trees: 5,
           ),
           treePositions: [
-            TreePosition(x: 0, y: 0),
-            TreePosition(x: 0.1, y: 0.1),
-            TreePosition(x: 0.2, y: 0.2),
-            TreePosition(x: 0.3, y: 0.3),
-            TreePosition(x: 0.4, y: 0.4),
+            const TreePosition(x: 0, y: 0),
+            const TreePosition(x: 0.1, y: 0.1),
+            const TreePosition(x: 0.2, y: 0.2),
+            const TreePosition(x: 0.3, y: 0.3),
+            const TreePosition(x: 0.4, y: 0.4),
           ],
         );
 
@@ -156,7 +156,8 @@ void main() {
           pollution: 25,
           trees: 10,
         ),
-        treePositions: List.generate(10, (i) => TreePosition(x: i * 0.1, y: i * 0.1)),
+        treePositions:
+            List.generate(10, (i) => TreePosition(x: i * 0.1, y: i * 0.1)),
       );
       await tester.pumpAndSettle();
 
