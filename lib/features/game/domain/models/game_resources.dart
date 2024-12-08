@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'resources.dart';
 
 part 'game_resources.freezed.dart';
 
@@ -7,9 +8,9 @@ class GameResources with _$GameResources {
   const GameResources._(); // Private constructor for methods
 
   const factory GameResources({
-    @Default(0) int water,
-    @Default(0) int energy,
-    @Default(0) int soil,
+    @Default(WaterResource()) WaterResource water,
+    @Default(EnergyResource()) EnergyResource energy,
+    @Default(SoilResource()) SoilResource soil,
   }) = _GameResources;
 
   bool canAfford({
@@ -17,7 +18,9 @@ class GameResources with _$GameResources {
     int energy = 0,
     int soil = 0,
   }) {
-    return this.water >= water && this.energy >= energy && this.soil >= soil;
+    return this.water.canSpend(water) && 
+           this.energy.canSpend(energy) && 
+           this.soil.canSpend(soil);
   }
 
   GameResources spend({
@@ -34,9 +37,9 @@ class GameResources with _$GameResources {
     }
 
     return copyWith(
-      water: this.water - water,
-      energy: this.energy - energy,
-      soil: this.soil - soil,
+      water: this.water.spend(water),
+      energy: this.energy.spend(energy),
+      soil: this.soil.spend(soil),
     );
   }
 
@@ -46,9 +49,9 @@ class GameResources with _$GameResources {
     int soil = 0,
   }) {
     return copyWith(
-      water: (this.water + water).clamp(0, 100),
-      energy: (this.energy + energy).clamp(0, 100),
-      soil: (this.soil + soil).clamp(0, 100),
+      water: this.water.regenerate(water),
+      energy: this.energy.regenerate(energy),
+      soil: this.soil.regenerate(soil),
     );
   }
 
@@ -67,7 +70,7 @@ class GameResources with _$GameResources {
   }
 
   bool canCleanPollution() {
-    return water >= 5 && energy >= 10;
+    return water.amount >= 5 && energy.amount >= 10;
   }
 
   GameResources spendForCleaning() {

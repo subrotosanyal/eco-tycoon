@@ -16,9 +16,9 @@ final _privateConstructorUsedError = UnsupportedError(
 
 /// @nodoc
 mixin _$GameResources {
-  int get water => throw _privateConstructorUsedError;
-  int get energy => throw _privateConstructorUsedError;
-  int get soil => throw _privateConstructorUsedError;
+  WaterResource get water => throw _privateConstructorUsedError;
+  EnergyResource get energy => throw _privateConstructorUsedError;
+  SoilResource get soil => throw _privateConstructorUsedError;
 
   /// Create a copy of GameResources
   /// with the given fields replaced by the non-null parameter values.
@@ -33,7 +33,11 @@ abstract class $GameResourcesCopyWith<$Res> {
           GameResources value, $Res Function(GameResources) then) =
       _$GameResourcesCopyWithImpl<$Res, GameResources>;
   @useResult
-  $Res call({int water, int energy, int soil});
+  $Res call({WaterResource water, EnergyResource energy, SoilResource soil});
+
+  $WaterResourceCopyWith<$Res> get water;
+  $EnergyResourceCopyWith<$Res> get energy;
+  $SoilResourceCopyWith<$Res> get soil;
 }
 
 /// @nodoc
@@ -59,16 +63,46 @@ class _$GameResourcesCopyWithImpl<$Res, $Val extends GameResources>
       water: null == water
           ? _value.water
           : water // ignore: cast_nullable_to_non_nullable
-              as int,
+              as WaterResource,
       energy: null == energy
           ? _value.energy
           : energy // ignore: cast_nullable_to_non_nullable
-              as int,
+              as EnergyResource,
       soil: null == soil
           ? _value.soil
           : soil // ignore: cast_nullable_to_non_nullable
-              as int,
+              as SoilResource,
     ) as $Val);
+  }
+
+  /// Create a copy of GameResources
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $WaterResourceCopyWith<$Res> get water {
+    return $WaterResourceCopyWith<$Res>(_value.water, (value) {
+      return _then(_value.copyWith(water: value) as $Val);
+    });
+  }
+
+  /// Create a copy of GameResources
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $EnergyResourceCopyWith<$Res> get energy {
+    return $EnergyResourceCopyWith<$Res>(_value.energy, (value) {
+      return _then(_value.copyWith(energy: value) as $Val);
+    });
+  }
+
+  /// Create a copy of GameResources
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $SoilResourceCopyWith<$Res> get soil {
+    return $SoilResourceCopyWith<$Res>(_value.soil, (value) {
+      return _then(_value.copyWith(soil: value) as $Val);
+    });
   }
 }
 
@@ -80,7 +114,14 @@ abstract class _$$GameResourcesImplCopyWith<$Res>
       __$$GameResourcesImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({int water, int energy, int soil});
+  $Res call({WaterResource water, EnergyResource energy, SoilResource soil});
+
+  @override
+  $WaterResourceCopyWith<$Res> get water;
+  @override
+  $EnergyResourceCopyWith<$Res> get energy;
+  @override
+  $SoilResourceCopyWith<$Res> get soil;
 }
 
 /// @nodoc
@@ -104,15 +145,15 @@ class __$$GameResourcesImplCopyWithImpl<$Res>
       water: null == water
           ? _value.water
           : water // ignore: cast_nullable_to_non_nullable
-              as int,
+              as WaterResource,
       energy: null == energy
           ? _value.energy
           : energy // ignore: cast_nullable_to_non_nullable
-              as int,
+              as EnergyResource,
       soil: null == soil
           ? _value.soil
           : soil // ignore: cast_nullable_to_non_nullable
-              as int,
+              as SoilResource,
     ));
   }
 }
@@ -120,18 +161,21 @@ class __$$GameResourcesImplCopyWithImpl<$Res>
 /// @nodoc
 
 class _$GameResourcesImpl extends _GameResources {
-  const _$GameResourcesImpl({this.water = 0, this.energy = 0, this.soil = 0})
+  const _$GameResourcesImpl(
+      {this.water = const WaterResource(),
+      this.energy = const EnergyResource(),
+      this.soil = const SoilResource()})
       : super._();
 
   @override
   @JsonKey()
-  final int water;
+  final WaterResource water;
   @override
   @JsonKey()
-  final int energy;
+  final EnergyResource energy;
   @override
   @JsonKey()
-  final int soil;
+  final SoilResource soil;
 
   @override
   String toString() {
@@ -162,17 +206,17 @@ class _$GameResourcesImpl extends _GameResources {
 
 abstract class _GameResources extends GameResources {
   const factory _GameResources(
-      {final int water,
-      final int energy,
-      final int soil}) = _$GameResourcesImpl;
+      {final WaterResource water,
+      final EnergyResource energy,
+      final SoilResource soil}) = _$GameResourcesImpl;
   const _GameResources._() : super._();
 
   @override
-  int get water;
+  WaterResource get water;
   @override
-  int get energy;
+  EnergyResource get energy;
   @override
-  int get soil;
+  SoilResource get soil;
 
   /// Create a copy of GameResources
   /// with the given fields replaced by the non-null parameter values.

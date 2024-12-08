@@ -2,6 +2,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'game_resources.dart';
 import 'planet_state.dart';
 import 'tree_position.dart';
+import 'resources.dart';
 
 part 'game_state.freezed.dart';
 
@@ -20,9 +21,9 @@ class GameState with _$GameState {
   factory GameState.initial() => const GameState(
         planetState: PlanetState(),
         resources: GameResources(
-          water: 50,
-          energy: 50,
-          soil: 30,
+          water: WaterResource(amount: 50),
+          energy: EnergyResource(amount: 50),
+          soil: SoilResource(amount: 30),
         ),
         treePositions: [],
       );

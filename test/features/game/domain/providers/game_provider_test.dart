@@ -1,10 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:eco_tycoon/features/game/domain/providers/game_provider.dart';
-import 'package:eco_tycoon/features/game/domain/models/game_state.dart';
-import 'package:eco_tycoon/features/game/domain/models/tree_position.dart';
 import 'package:eco_tycoon/features/game/domain/models/game_resources.dart';
+import 'package:eco_tycoon/features/game/domain/models/game_state.dart';
 import 'package:eco_tycoon/features/game/domain/models/planet_state.dart';
+import 'package:eco_tycoon/features/game/domain/models/resources.dart';
+import 'package:eco_tycoon/features/game/domain/models/tree_position.dart';
 import '../commands/command_test_helper.dart';
 
 void main() {
@@ -28,6 +29,9 @@ void main() {
       expect(state.victory, false);
       expect(state.elapsedTime, 0);
       expect(state.treePositions, isEmpty);
+      expect(state.resources.water.amount, 50);
+      expect(state.resources.energy.amount, 50);
+      expect(state.resources.soil.amount, 30);
     });
 
     test('startGame should initialize game correctly', () {
@@ -60,7 +64,11 @@ void main() {
       // Start with specific resource values
       final initialState = GameState.initial().copyWith(
         isPlaying: true,
-        resources: const GameResources(water: 50, energy: 50, soil: 30),
+        resources: const GameResources(
+          water: WaterResource(amount: 50),
+          energy: EnergyResource(amount: 50),
+          soil: SoilResource(amount: 30),
+        ),
       );
       container = ProviderContainer();
       gameNotifier = container.read(gameNotifierProvider.notifier)
@@ -71,14 +79,18 @@ void main() {
           gameNotifier, initialState, position);
       final newState = container.read(gameNotifierProvider);
 
-      expect(newState.resources.water, initialState.resources.water - 10);
-      expect(newState.resources.energy, initialState.resources.energy - 5);
-      expect(newState.resources.soil, initialState.resources.soil - 5);
+      expect(newState.resources.water.amount, initialState.resources.water.amount - 10);
+      expect(newState.resources.energy.amount, initialState.resources.energy.amount - 5);
+      expect(newState.resources.soil.amount, initialState.resources.soil.amount - 5);
     });
 
     test('should not plant tree when resources are insufficient', () async {
       // Set resources to low values
-      const lowResources = GameResources(water: 5, energy: 3, soil: 3);
+      const lowResources = GameResources(
+        water: WaterResource(amount: 5),
+        energy: EnergyResource(amount: 3),
+        soil: SoilResource(amount: 3),
+      );
       final initialState = GameState.initial().copyWith(
         isPlaying: true,
         resources: lowResources,
@@ -110,9 +122,9 @@ void main() {
       await CommandTestHelper.executeCleanPollution(gameNotifier, initialState);
       final state = container.read(gameNotifierProvider);
 
-      expect(state.resources.water, equals(initialResources.water - 5),
+      expect(state.resources.water.amount, equals(initialResources.water.amount - 5),
           reason: 'Should consume 5 water');
-      expect(state.resources.energy, equals(initialResources.energy - 10),
+      expect(state.resources.energy.amount, equals(initialResources.energy.amount - 10),
           reason: 'Should consume 10 energy');
       expect(state.planetState.pollution, equals(40),
           reason: 'Should reduce pollution by 10');
@@ -123,7 +135,11 @@ void main() {
       // Start with low resources
       final initialState = GameState.initial().copyWith(
         isPlaying: true,
-        resources: const GameResources(water: 4, energy: 4, soil: 30),
+        resources: const GameResources(
+          water: WaterResource(amount: 4),
+          energy: EnergyResource(amount: 4),
+          soil: SoilResource(amount: 30),
+        ),
         planetState: const PlanetState(pollution: 50),
       );
       container = ProviderContainer();
@@ -134,9 +150,9 @@ void main() {
       final newState = container.read(gameNotifierProvider);
 
       // Resources and pollution should remain unchanged
-      expect(newState.resources.water, equals(4),
+      expect(newState.resources.water.amount, equals(4),
           reason: 'Water should not be consumed');
-      expect(newState.resources.energy, equals(4),
+      expect(newState.resources.energy.amount, equals(4),
           reason: 'Energy should not be consumed');
       expect(newState.planetState.pollution, equals(50),
           reason: 'Pollution should not be reduced');
@@ -150,7 +166,11 @@ void main() {
       final favorableState = GameState.initial().copyWith(
         isPlaying: true,
         planetState: const PlanetState(pollution: 25),
-        resources: const GameResources(water: 1000, energy: 1000, soil: 1000),
+        resources: const GameResources(
+          water: WaterResource(amount: 1000),
+          energy: EnergyResource(amount: 1000),
+          soil: SoilResource(amount: 1000),
+        ),
       );
       container = ProviderContainer();
       gameNotifier = container.read(gameNotifierProvider.notifier)
@@ -248,7 +268,9 @@ void main() {
         planetState:
             const PlanetState(pollution: 50), // Start with some pollution
         resources: const GameResources(
-            water: 100, energy: 100, soil: 100), // Ensure enough resources
+            water: WaterResource(amount: 100),
+            energy: EnergyResource(amount: 100),
+            soil: SoilResource(amount: 100)), // Ensure enough resources
       );
       gameNotifier.state = initialState;
 
@@ -291,7 +313,9 @@ void main() {
         isPlaying: true, // Start playing
         planetState: const PlanetState(pollution: 0),
         resources: const GameResources(
-            water: 500, energy: 500, soil: 500), // Ensure enough resources
+            water: WaterResource(amount: 500),
+            energy: EnergyResource(amount: 500),
+            soil: SoilResource(amount: 500)), // Ensure enough resources
       );
       gameNotifier.state = initialState;
 

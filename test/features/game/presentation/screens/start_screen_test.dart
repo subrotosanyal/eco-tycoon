@@ -22,7 +22,7 @@ void main() {
     testWidgets('displays all required sections and elements',
         (WidgetTester tester) async {
       await tester.binding.setSurfaceSize(const Size(800, 1200));
-      
+
       await tester.pumpWidget(
         ProviderScope(
           parent: container,
@@ -45,8 +45,7 @@ void main() {
       expect(find.text('Plant trees to generate resources'), findsOneWidget);
       expect(find.text('Clean pollution to save the planet'), findsOneWidget);
       expect(find.text('Manage your resources wisely'), findsOneWidget);
-      expect(
-          find.text('Act quickly - faster completion means higher scores!'),
+      expect(find.text('Act quickly - faster completion means higher scores!'),
           findsOneWidget);
 
       // Verify victory conditions
@@ -80,10 +79,10 @@ void main() {
 
       await tester.ensureVisible(startButton);
       await tester.tap(startButton);
-      
+
       // Pump a frame to start the navigation
       await tester.pump();
-      
+
       final gameState = container.read(gameNotifierProvider);
       expect(gameState.isPlaying, true);
       expect(gameState.gameOver, false);
@@ -91,10 +90,10 @@ void main() {
 
       // Pump frames to complete the navigation animation
       await tester.pumpAndSettle();
-      
+
       expect(find.byType(StartScreen), findsNothing);
       expect(find.byType(GameScreen), findsOneWidget);
-      
+
       // Clean up game state
       final gameNotifier = container.read(gameNotifierProvider.notifier);
       gameNotifier.stopGame();
@@ -102,7 +101,7 @@ void main() {
 
     testWidgets('scrolls to show all content', (WidgetTester tester) async {
       await tester.binding.setSurfaceSize(const Size(800, 400));
-      
+
       await tester.pumpWidget(
         ProviderScope(
           parent: container,
@@ -113,16 +112,16 @@ void main() {
       );
 
       expect(find.text('Eco Tycoon'), findsOneWidget);
-      
+
       final scrollable = find.byType(SingleChildScrollView);
       expect(scrollable, findsOneWidget);
 
-      final targetText = 'Soil: Required for tree growth';
+      const targetText = 'Soil: Required for tree growth';
       final target = find.text(targetText);
-      
+
       await tester.drag(scrollable, const Offset(0, -100));
       await tester.pump();
-      
+
       expect(tester.any(target), true);
     });
   });

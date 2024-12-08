@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:eco_tycoon/features/game/domain/models/planet_state.dart';
 import 'package:eco_tycoon/features/game/domain/models/game_resources.dart';
+import 'package:eco_tycoon/features/game/domain/models/resources.dart';
 
 class GameCalculator {
   static const int BASE_POLLUTION_INCREASE = 2;
@@ -16,7 +17,7 @@ class GameCalculator {
   /// Calculates the game score based on number of trees, pollution level, and elapsed time
   static int calculateScore(int trees, int pollution, [int elapsedTimeInSeconds = 0]) {
     // Base score calculation
-    final baseScore = (trees * TREE_POINTS) - (pollution * POLLUTION_PENALTY);
+    final baseScore = math.max(0, (trees * TREE_POINTS) - (pollution * POLLUTION_PENALTY));
     
     if (elapsedTimeInSeconds == 0) {
       return baseScore; // For backward compatibility with tests
@@ -70,26 +71,27 @@ class GameCalculator {
     final regenerationRate = 1 + (treeCount * 0.1).round();
 
     return current.copyWith(
-      water: math.min(100, current.water + regenerationRate),
-      energy: math.min(100, current.energy + regenerationRate),
-      soil: math.min(100, current.soil + regenerationRate),
+      water: WaterResource(amount: math.min(100, current.water.amount + regenerationRate)),
+      energy: EnergyResource(amount: math.min(100, current.energy.amount + regenerationRate)),
+      soil: SoilResource(amount: math.min(100, current.soil.amount + regenerationRate)),
     );
   }
 
   /// Calculates resource cost for planting a tree
   static GameResources calculateTreePlantingCost(GameResources current) {
     return current.copyWith(
-      water: current.water - 10,
-      energy: current.energy - 5,
-      soil: current.soil - 5,
+      water: WaterResource(amount: current.water.amount - 10),
+      energy: EnergyResource(amount: current.energy.amount - 5),
+      soil: SoilResource(amount: current.soil.amount - 5),
     );
   }
 
   /// Calculates resource cost for cleaning pollution
   static GameResources calculatePollutionCleaningCost(GameResources current) {
     return current.copyWith(
-      water: current.water - 5,
-      energy: current.energy - 10,
+      water: WaterResource(amount: current.water.amount - 5),
+      energy: EnergyResource(amount: current.energy.amount - 10),
+      soil: current.soil,
     );
   }
 
@@ -105,21 +107,18 @@ class GameCalculator {
     required int pollution,
     required int treeCount,
   }) {
-    // Don't check if game is already over
-    if (currentGameOver) {
-      return {'gameOver': true, 'victory': false};
+    if (!isPlaying || currentGameOver) {
+      return {'gameOver': false, 'victory': false};
     }
 
-    // Check pollution regardless of game state
+    // Victory conditions
+    if (treeCount >= MIN_TREES_FOR_VICTORY && pollution <= MAX_POLLUTION_FOR_VICTORY) {
+      return {'gameOver': true, 'victory': true};
+    }
+
+    // Defeat conditions
     if (pollution >= MAX_POLLUTION) {
       return {'gameOver': true, 'victory': false};
-    }
-
-    // Only check victory conditions if game is playing
-    if (isPlaying &&
-        treeCount >= MIN_TREES_FOR_VICTORY &&
-        pollution < MAX_POLLUTION_FOR_VICTORY) {
-      return {'gameOver': true, 'victory': true};
     }
 
     return {'gameOver': false, 'victory': false};

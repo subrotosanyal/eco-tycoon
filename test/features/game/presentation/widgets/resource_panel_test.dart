@@ -5,6 +5,7 @@ import 'package:eco_tycoon/features/game/presentation/widgets/resource_panel.dar
 import 'package:eco_tycoon/features/game/domain/models/game_resources.dart';
 import 'package:eco_tycoon/features/game/domain/models/game_state.dart';
 import 'package:eco_tycoon/features/game/domain/providers/game_provider.dart';
+import 'package:eco_tycoon/features/game/domain/models/resources.dart';
 
 void main() {
   group('ResourcePanel Widget Tests', () {
@@ -27,9 +28,9 @@ void main() {
 
     testWidgets('Shows correct resource values', (WidgetTester tester) async {
       const testResources = GameResources(
-        water: 50,
-        energy: 75,
-        soil: 100,
+        water: WaterResource(amount: 50),
+        energy: EnergyResource(amount: 75),
+        soil: SoilResource(amount: 100),
       );
 
       await tester.pumpWidget(
@@ -63,19 +64,29 @@ void main() {
         ),
       );
 
-      // Find all resource indicators
-      final indicators = find.byType(Row);
-      expect(indicators, findsOneWidget);
+      // Find the container that holds the resource indicators
+      final container = find.byType(Container);
+      expect(container, findsOneWidget);
+
+      // Find the Row inside the Container
+      final row = find.descendant(
+        of: container,
+        matching: find.byType(Row),
+      ).first;
 
       // Verify Row uses spaceEvenly alignment
-      final row = tester.widget<Row>(indicators);
-      expect(row.mainAxisAlignment, MainAxisAlignment.spaceEvenly);
+      final rowWidget = tester.widget<Row>(row);
+      expect(rowWidget.mainAxisAlignment, MainAxisAlignment.spaceEvenly);
     });
 
     testWidgets('Updates when resources change', (WidgetTester tester) async {
       final gameNotifier = GameNotifier()
         ..state = GameState.initial().copyWith(
-          resources: const GameResources(water: 100, energy: 100, soil: 100),
+          resources: const GameResources(
+            water: WaterResource(amount: 100),
+            energy: EnergyResource(amount: 100),
+            soil: SoilResource(amount: 100),
+          ),
         );
 
       await tester.pumpWidget(
@@ -96,7 +107,11 @@ void main() {
 
       // Update resources
       gameNotifier.state = gameNotifier.state.copyWith(
-        resources: const GameResources(water: 50, energy: 50, soil: 50),
+        resources: const GameResources(
+          water: WaterResource(amount: 50),
+          energy: EnergyResource(amount: 50),
+          soil: SoilResource(amount: 50),
+        ),
       );
       await tester.pumpAndSettle();
 
