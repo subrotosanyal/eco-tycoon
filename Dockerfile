@@ -1,4 +1,4 @@
-FROM debian:bullseye-slim AS test
+FROM debian:bookworm-slim AS test
 
 # Install required dependencies
 RUN apt-get update && apt-get install -y \
@@ -11,14 +11,13 @@ RUN apt-get update && apt-get install -y \
     imagemagick \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Flutter
-RUN git clone https://github.com/flutter/flutter.git /flutter
+# Install Flutter (pinned: the app's dependencies predate newer Flutter releases)
+ARG FLUTTER_VERSION=3.27.4
+RUN git clone --depth 1 --branch ${FLUTTER_VERSION} https://github.com/flutter/flutter.git /flutter
 ENV PATH="/flutter/bin:${PATH}"
 
 # Configure Flutter
-RUN flutter channel stable && \
-    flutter upgrade && \
-    flutter config --enable-web
+RUN flutter config --enable-web
 
 WORKDIR /app
 COPY . .
@@ -27,7 +26,7 @@ COPY . .
 RUN flutter pub get && \
     flutter test --coverage
 
-FROM debian:bullseye-slim AS build
+FROM debian:bookworm-slim AS build
 
 # Install required dependencies
 RUN apt-get update && apt-get install -y \
@@ -40,14 +39,13 @@ RUN apt-get update && apt-get install -y \
     imagemagick \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Flutter
-RUN git clone https://github.com/flutter/flutter.git /flutter
+# Install Flutter (pinned: the app's dependencies predate newer Flutter releases)
+ARG FLUTTER_VERSION=3.27.4
+RUN git clone --depth 1 --branch ${FLUTTER_VERSION} https://github.com/flutter/flutter.git /flutter
 ENV PATH="/flutter/bin:${PATH}"
 
 # Configure Flutter
-RUN flutter channel stable && \
-    flutter upgrade && \
-    flutter config --enable-web
+RUN flutter config --enable-web
 
 WORKDIR /app
 COPY . .
